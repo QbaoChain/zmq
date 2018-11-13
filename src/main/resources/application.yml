@@ -28,3 +28,9 @@ qtum:
 
 schedule:
   syncTxCron: 0 0/1 * * * ?
+  
+http:
+  header:
+    allowedOrigin: '*'
+    allowedMethod: '*'
+    allowedHeader: X-Requested-With,Content-Type,Authorization,X-T,X-AD,X-TS,X-S,X-NO-ENC-XXX,X-R
