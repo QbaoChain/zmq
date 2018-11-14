@@ -1,6 +1,7 @@
 package com.aethercoder.websocket;
 
 import com.aethercoder.service.QtumService;
+import com.aethercoder.util.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,8 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 /**
  * Created by hepengfei on 27/02/2018.
@@ -46,6 +49,7 @@ public class MessageSender {
     @Scheduled(fixedRate = 5000)
     public void sendJoinGambleResultScheduled() {
         logger.info("run send web socket");
-        sendEventToClient(qtumService.getBlockAndTx());
+        Map blockTxMap = qtumService.getBlockAndTx();
+        sendEventToClient(BeanUtils.objectToJson(blockTxMap));
     }
 }
