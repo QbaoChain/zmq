@@ -1,9 +1,9 @@
 package com.aethercoder.dao;
 
-import com.aethercoder.entity.BlockInfo;
 import com.aethercoder.entity.TxInfo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,4 +26,8 @@ public interface TxInfoDao extends JpaRepository<TxInfo, Long>{
 
     @Query(value = "SELECT a.* from t_tx_info a,t_address_info b where b.address = :address and a.tx_id = b.tx_hash order by ?#{#pageable}",countQuery = "SELECT count(*) from t_tx_info a,t_address_info b where b.address = :address and a.tx_id = b.tx_hash",nativeQuery = true)
     Page<TxInfo> getTxInfos(@Param("address") String address, Pageable pageable);
+
+    List<TxInfo> getByBlockHeight(Integer height);
+
+    Page<TxInfo> findAll(Specification<TxInfo> specification, Pageable pageable);
 }
