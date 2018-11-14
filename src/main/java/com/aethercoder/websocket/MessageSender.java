@@ -9,7 +9,6 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.SimpMessageType;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -46,10 +45,10 @@ public class MessageSender {
 
     }
 
-    @Scheduled(fixedRate = 5000)
-    public void sendJoinGambleResultScheduled() {
+//    @Scheduled(fixedRate = 5000)
+    public void sendLatestBlockAndTx(Integer height) {
         logger.info("run send web socket");
-        Map blockTxMap = qtumService.getBlockAndTx();
+        Map blockTxMap = qtumService.getBlockAndTx(height);
         sendEventToClient(BeanUtils.objectToJson(blockTxMap));
     }
 }
