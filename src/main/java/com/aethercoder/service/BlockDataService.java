@@ -4,11 +4,10 @@ import com.aethercoder.entity.AddressInfo;
 import com.aethercoder.entity.BlockInfo;
 import com.aethercoder.entity.TokenInfo;
 import com.aethercoder.entity.TxInfo;
+import com.aethercoder.util.BeanUtils;
 import com.aethercoder.vo.TokenTransfer;
-import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Async;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -33,8 +32,6 @@ public class BlockDataService implements Runnable {
         this.blockHash = blockHash;
         this.blockDetail = blockDetail;
     }
-
-    private Gson gson = new Gson();
 
     /**
      * 对每个区块进行数据分解
@@ -141,7 +138,7 @@ public class BlockDataService implements Runnable {
         txFee = isBaseFlag ? txFeeMap.get("blockFee") : txFee;
 
         // 生成transaction信息
-        generateTxInfo(transDetail, txInfos, txFee, gson.toJson(txVin), gson.toJson(txVout), vin.size(), ((List)transDetail.get("vout")).size());
+        generateTxInfo(transDetail, txInfos, txFee, BeanUtils.objectToJson(txVin), BeanUtils.objectToJson(txVout), vin.size(), ((List)transDetail.get("vout")).size());
     }
 
     private BigDecimal handleVoutMap(BigDecimal txFee,
