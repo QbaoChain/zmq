@@ -9,7 +9,6 @@ import com.aethercoder.entity.TxInfo;
 import com.aethercoder.util.BeanUtils;
 import com.aethercoder.util.NetworkUtil;
 import com.aethercoder.util.QtumUtils;
-import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -33,8 +31,6 @@ import java.util.regex.Pattern;
 public class QtumService {
 
     private Logger logger = LoggerFactory.getLogger(QtumService.class);
-
-    private Gson gson = new Gson();
 
     @Value("${qtum.username}")
     private String username;
@@ -159,7 +155,7 @@ public class QtumService {
         return pattern.matcher(str).matches();
     }
 
-    public String getLatestBlockInfos(Integer size, Integer page) {
+    public Map getLatestBlockInfos(Integer size, Integer page) {
         Map resultMap = new HashMap();
 
         Page<BlockInfo> blockInfosPage = getBlockInfosByPage(size, page);
@@ -167,7 +163,7 @@ public class QtumService {
         resultMap.put("blockInfos", blockInfosPage.getContent() == null ? new ArrayList<>() : blockInfosPage.getContent());
         resultMap.put("totalNumber", blockInfosPage.getTotalElements());
 
-        return gson.toJson(resultMap);
+        return resultMap;
     }
 
     public Page<BlockInfo> getBlockInfosByPage(Integer size, Integer page){
@@ -177,7 +173,7 @@ public class QtumService {
         return blockInfosPage;
     }
 
-    public String getBlockInfo(String blockHashOrBlockCount) throws Exception{
+    public BlockInfo getBlockInfo(String blockHashOrBlockCount) throws Exception{
         BlockInfo blockInfo = null;
         if(isInteger(blockHashOrBlockCount)){
             blockInfo = blockInfoDao.getByBlockHeight(Integer.valueOf(blockHashOrBlockCount));
@@ -186,14 +182,14 @@ public class QtumService {
             blockInfo = blockInfoDao.getByBlockHash(blockHashOrBlockCount);
         }
 
-        return gson.toJson(blockInfo);
+        return blockInfo;
     }
 
-    public String getTransactionInfo(String txHash) throws Exception{
+    public List<TxInfo> getTransactionInfo(String txHash) throws Exception{
 
         List<TxInfo> txInfos = txInfoDao.getByTxId(txHash);
 
-        return gson.toJson(txInfos);
+        return txInfos;
     }
 
     public Map<String, TokenInfo> getTokenIndoMap(){
@@ -211,7 +207,7 @@ public class QtumService {
         return blockInfoDao.getAllBlockHeightFromDB(minBlockHeight);
     }
 
-    public String getTokenBalance(String address){
+    public Map getTokenBalance(String address){
         Map tokens = new HashMap();
 
         try{
@@ -248,7 +244,7 @@ public class QtumService {
             e.printStackTrace();
         }
 
-        return gson.toJson(tokens);
+        return tokens;
     }
 
     public String getAddressUnSpent(String address){
@@ -287,7 +283,7 @@ public class QtumService {
 
     public String queryByParam(String param){
         if (isInteger(param)){
-            return gson.toJson(blockInfoDao.getByBlockHeight(Integer.valueOf(param)));
+            return BeanUtils.objectToJson(blockInfoDao.getByBlockHeight(Integer.valueOf(param)));
         }
 
         int paramLength = param.length();
@@ -295,22 +291,22 @@ public class QtumService {
             //参数长度为64为区块hash或者交易Hash
             BlockInfo blockInfo = blockInfoDao.getByBlockHash(param);
             if(blockInfo == null){
-                return gson.toJson(txInfoDao.getByTxId(param));
+                return BeanUtils.objectToJson(txInfoDao.getByTxId(param));
             }
             else {
-                return gson.toJson(blockInfo);
+                return BeanUtils.objectToJson(blockInfo);
             }
 
         }
         else if(paramLength == 40 || paramLength == 34){
             //参数长度为40为合约地址---参数长度为35为账户地址
-            return gson.toJson(getAddressInfos(param, 10, 0));
+            return BeanUtils.objectToJson(getAddressInfos(param, 10, 0));
         }
 
         return "";
     }
 
-    public String getAddressInfos(String address, Integer size, Integer page){
+    public Map getAddressInfos(String address, Integer size, Integer page){
         Map resultMap = new HashMap();
 
         Pageable pageable = new PageRequest(page, size, new Sort(Sort.Direction.DESC, "block_height"));
@@ -322,10 +318,10 @@ public class QtumService {
         resultMap.put("tokens", getTokenBalance(address));
         resultMap.put("totalNumber", txInfosPage.getTotalElements());
 
-        return gson.toJson(resultMap);
+        return resultMap;
     }
 
-    public String getBlockAndTx(){
+    public Map getBlockAndTx(){
         Map resultMap = new HashMap();
 
         // 获取最新的区块信息（10个区块）
@@ -336,11 +332,15 @@ public class QtumService {
         Pageable pageable = new PageRequest(0, 20, new Sort(Sort.Direction.DESC, "time"));
         Page<TxInfo> txInfosPage = txInfoDao.getByPage(pageable);
         List<TxInfo> txInfos = txInfosPage.getContent() == null ? new ArrayList<>() : txInfosPage.getContent();
+        txInfos.forEach(txInfo -> {
+            txInfo.setTxVin(null);
+            txInfo.setTxVout(null);
+        });
 
         resultMap.put("blockHeight", blockInfoDao.findMaxBlockHeight());
         resultMap.put("blocks", blockInfos);
         resultMap.put("txs", txInfos);
 
-        return gson.toJson(resultMap);
+        return resultMap;
     }
 }
