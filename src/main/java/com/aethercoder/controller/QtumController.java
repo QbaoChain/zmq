@@ -6,9 +6,12 @@ import com.aethercoder.service.QtumService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,11 +25,11 @@ public class QtumController {
     @Autowired
     private QtumService qtumService;
 
-    @RequestMapping( value = "/blockInfos/{limit}/{offset}", method = RequestMethod.GET)
-    public Map getLatestBlockInfos(@PathVariable("limit") Integer limit, @PathVariable("offset") Integer offset) throws Exception {
-        logger.info("/blockInfos/{limit}/{offset}");
+    @RequestMapping( value = "/blockInfos", method = RequestMethod.GET)
+    public Map getLatestBlockInfos(@RequestParam("size") Integer size, @RequestParam("page") Integer page) throws Exception {
+        logger.info("/blockInfos");
 
-        return qtumService.getLatestBlockInfos(limit, offset);
+        return qtumService.getLatestBlockInfos(size, page);
     }
 
     @RequestMapping( value = "/blockInfo", method = RequestMethod.GET)
@@ -36,18 +39,18 @@ public class QtumController {
         return qtumService.getBlockInfo(blockHashOrBlockCount);
     }
 
-    @RequestMapping( value = "/addressInfo/{limit}/{offset}", method = RequestMethod.GET)
-    public Map getAddressInfo(@RequestParam String address, @PathVariable("limit") Integer limit, @PathVariable("offset") Integer offset) throws Exception {
+    @RequestMapping( value = "/addressInfo", method = RequestMethod.GET)
+    public Map getAddressInfo(@RequestParam(required = false) String address, @RequestParam(value = "size", required = false) Integer size, @RequestParam(value = "page", required = false) Integer page) throws Exception {
         logger.info("/addressInfo");
 
-        return qtumService.getAddressInfos(address, limit, offset);
+        return qtumService.getAddressInfos(address, size, page);
     }
 
     @RequestMapping( value = "/transactionInfo", method = RequestMethod.GET)
-    public List<TxInfo> getTransactionInfo(@RequestParam String txHash) throws Exception {
+    public Page<TxInfo> getTransactionInfo(@RequestParam(value = "txHash", required = false) String txHash, @RequestParam(value = "blockHeight", required = false) Integer blockHeight, @RequestParam(value = "size", required = false) Integer size, @RequestParam(value = "page", required = false) Integer page) throws Exception {
         logger.info("/transactionInfo");
 
-        return qtumService.getTransactionInfo(txHash);
+        return qtumService.getTransactionInfo(page, size, txHash, blockHeight);
     }
 
     @RequestMapping( value = "/tokenBalance", method = RequestMethod.GET)
