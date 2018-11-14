@@ -1,5 +1,6 @@
 package com.aethercoder.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
@@ -18,6 +19,7 @@ public class TxInfo extends BaseEntity {
     private String txId;
 
     @Column(name = "time")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date time;
 
     @Column(name = "block_hash")
