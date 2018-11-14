@@ -1,5 +1,7 @@
 package com.aethercoder.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -25,6 +27,7 @@ public class BlockInfo extends BaseEntity{
     private Integer blockWeight;
 
     @Column(name = "block_time")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date blockTime;
 
     @Column(name = "block_award")
