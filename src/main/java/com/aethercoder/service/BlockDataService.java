@@ -6,6 +6,7 @@ import com.aethercoder.entity.TokenInfo;
 import com.aethercoder.entity.TxInfo;
 import com.aethercoder.util.BeanUtils;
 import com.aethercoder.vo.TokenTransfer;
+import com.aethercoder.websocket.MessageSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,11 +27,14 @@ public class BlockDataService implements Runnable {
 
     private Map blockDetail;
 
-    public BlockDataService(QtumService qtumService, TransactionService transactionService, String blockHash, Map blockDetail){
+    private MessageSender messageSender;
+
+    public BlockDataService(QtumService qtumService, TransactionService transactionService, MessageSender messageSender, String blockHash, Map blockDetail){
         this.qtumService = qtumService;
         this.transactionService = transactionService;
         this.blockHash = blockHash;
         this.blockDetail = blockDetail;
+        this.messageSender = messageSender;
     }
 
     /**
@@ -59,6 +63,10 @@ public class BlockDataService implements Runnable {
             // 生成区块信息（包括区块奖励，区块交易数等）
             BlockInfo block = generateBlockInfo(txFeeMap.get("blockFee"), blockHash, transList.size());
             transactionService.save(block, txList, addressInfoList);
+            //如果当前时间和区块生成的时间间隔小于10s
+            if (System.currentTimeMillis() - block.getBlockTime().getTime() <= 10000) {
+                messageSender.sendLatestBlockAndTx(block.getBlockHeight());
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
