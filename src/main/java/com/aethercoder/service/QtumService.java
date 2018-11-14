@@ -17,9 +17,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -185,9 +190,23 @@ public class QtumService {
         return blockInfo;
     }
 
-    public List<TxInfo> getTransactionInfo(String txHash) throws Exception{
+    public Page<TxInfo> getTransactionInfo(Integer page, Integer size, String txHash, Integer blockHeight) throws Exception {
 
-        List<TxInfo> txInfos = txInfoDao.getByTxId(txHash);
+        Pageable pageable = new PageRequest(page, size, Sort.Direction.DESC, "id");
+        Page<TxInfo> txInfos = txInfoDao.findAll(new Specification<TxInfo>() {
+            @Override
+            public Predicate toPredicate(Root<TxInfo> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+                List<Predicate> list = new ArrayList<Predicate>();
+                if (null != txHash && !"".equals(txHash)) {
+                    list.add(criteriaBuilder.equal(root.get("txHash").as(String.class), txHash));
+                }
+                if (null != blockHeight && !"".equals(blockHeight)) {
+                    list.add(criteriaBuilder.like(root.get("blockHeight").as(String.class), blockHeight + "%"));
+                }
+                Predicate[] p = new Predicate[list.size()];
+                return criteriaBuilder.and(list.toArray(p));
+            }
+        }, pageable);
 
         return txInfos;
     }
@@ -321,24 +340,25 @@ public class QtumService {
         return resultMap;
     }
 
-    public Map getBlockAndTx(){
+    public Map getBlockAndTx(Integer height){
         Map resultMap = new HashMap();
 
         // 获取最新的区块信息（10个区块）
-        Page<BlockInfo> blockInfosPage = getBlockInfosByPage(10, 0);
-        List<BlockInfo>  blockInfos = blockInfosPage.getContent() == null ? new ArrayList<>() : blockInfosPage.getContent();
+        BlockInfo blockInfo = blockInfoDao.getByBlockHeight(height); //getBlockInfosByPage(10, 0);
+//        List<BlockInfo>  blockInfos = blockInfosPage.getContent() == null ? new ArrayList<>() : blockInfosPage.getContent();
 
         // 获取最新的交易信息（20个区块）
-        Pageable pageable = new PageRequest(0, 20, new Sort(Sort.Direction.DESC, "time"));
-        Page<TxInfo> txInfosPage = txInfoDao.getByPage(pageable);
-        List<TxInfo> txInfos = txInfosPage.getContent() == null ? new ArrayList<>() : txInfosPage.getContent();
+//        Pageable pageable = new PageRequest(0, 20, new Sort(Sort.Direction.DESC, "time"));
+        List<TxInfo> txInfos  = txInfoDao.getByBlockHeight(height);
+//        Page<TxInfo> txInfosPage = txInfoDao.getByPage(pageable);
+//        List<TxInfo> txInfos = txInfosPage.getContent() == null ? new ArrayList<>() : txInfosPage.getContent();
         txInfos.forEach(txInfo -> {
             txInfo.setTxVin(null);
             txInfo.setTxVout(null);
         });
 
         resultMap.put("blockHeight", blockInfoDao.findMaxBlockHeight());
-        resultMap.put("blocks", blockInfos);
+        resultMap.put("blocks", blockInfo);
         resultMap.put("txs", txInfos);
 
         return resultMap;
