@@ -1,15 +1,13 @@
 package com.aethercoder.service;
 
+import com.aethercoder.websocket.MessageSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.util.*;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -27,6 +25,9 @@ public class QueueSubService implements Runnable {
 
     @Autowired
     private TransactionService transactionService;
+
+    @Autowired
+    private MessageSender messageSender;
 
     @Value("${qtum.zmq}")
     private String zmqUrl;
@@ -59,7 +60,7 @@ public class QueueSubService implements Runnable {
                 blockHash = blockingDeque.take();
 
                 Map blockDetail = qtumService.getBlockDetail(blockHash);
-                executor.execute(new BlockDataService(qtumService, transactionService, blockHash, blockDetail));
+                executor.execute(new BlockDataService(qtumService, transactionService, messageSender, blockHash, blockDetail));
 
                 //同步丢失的区块,启动初始或者每同步处理1000个区块，启动单个线程去检查是否存在缺失的区块
                 blocks++;
