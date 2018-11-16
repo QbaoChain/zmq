@@ -49,7 +49,7 @@ public class SynBlockService implements Runnable  {
 
 //            numberList.removeAll(heightList);
             for (int blockHeight: numberList) {
-                Thread.sleep(100);
+                Thread.sleep(50);
                 blockingDeque.put(qtumService.getBlockHash(Long.valueOf(blockHeight)));
 
                 logger.info("SynBlockService synMissingBlock, remaining block size: " + blockingDeque.size());
