@@ -2,14 +2,13 @@ package com.aethercoder.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.BlockingDeque;
 
@@ -37,13 +36,20 @@ public class SynBlockService implements Runnable  {
 
             int maxBlockHeight = heightList.get(heightList.size() - 1);
             List<Integer> numberList = new ArrayList();
+            int j = 0;
             for (int i = minBlockHeight; i < maxBlockHeight; i++){
-                numberList.add(i);
+                int height = heightList.get(j);
+                if (height > i) {
+                    numberList.add(i);
+                } else {
+                    j++;
+                }
             }
+            logger.info("numberList: " + numberList.size());
 
-            numberList.removeAll(heightList);
+//            numberList.removeAll(heightList);
             for (int blockHeight: numberList) {
-                Thread.sleep(5000);
+                Thread.sleep(100);
                 blockingDeque.put(qtumService.getBlockHash(Long.valueOf(blockHeight)));
 
                 logger.info("SynBlockService synMissingBlock, remaining block size: " + blockingDeque.size());
@@ -59,7 +65,7 @@ public class SynBlockService implements Runnable  {
     }
 
     private Integer getMinBlockHeight() throws Exception{
-        File file = new File("../MissMinBlockHeight.conf");
+        File file = new File("./MissMinBlockHeight.conf");
         if(!file.exists()){
             return 1;
         }
@@ -77,7 +83,7 @@ public class SynBlockService implements Runnable  {
     }
 
     private void writeMaxBlockHeight(Integer maxBlockHeight) throws Exception{
-        File file =new File("../MissMinBlockHeight.conf");
+        File file =new File("./MissMinBlockHeight.conf");
 
         //if file doesnt exists, then create it
         if(!file.exists()){
@@ -88,5 +94,24 @@ public class SynBlockService implements Runnable  {
         FileWriter fileWritter = new FileWriter(file.getName(),false);
         fileWritter.write(maxBlockHeight.toString());
         fileWritter.close();
+    }
+
+    public static void main(String... args) {
+//        int[] a = {1,2,3,4,5,6,7,8,9,10};
+        List<Integer> heightList = Arrays.asList(1,2,3,5,6,7,8,10);
+
+        int maxBlockHeight = 10;
+        int minBlockHeight = 0;
+        List<Integer> numberList = new ArrayList();
+        int j = 0;
+        for (int i = minBlockHeight; i < maxBlockHeight; i++){
+            int height = heightList.get(j);
+            if (height > i) {
+                numberList.add(i);
+            } else {
+                j++;
+            }
+        }
+        System.out.println(numberList);
     }
 }
