@@ -1,5 +1,6 @@
 package com.aethercoder.service;
 
+import com.aethercoder.dao.AddressInfoDao;
 import com.aethercoder.dao.BlockInfoDao;
 import com.aethercoder.dao.TokenInfoDao;
 import com.aethercoder.dao.TxInfoDao;
@@ -57,6 +58,9 @@ public class QtumService {
 
     @Autowired
     private TxInfoDao txInfoDao;
+
+    @Autowired
+    private AddressInfoDao addressInfoDao;
 
     public Integer getBlockCount() throws Exception{
         List<Map<String, Object>> paramList = new ArrayList<>();
@@ -333,7 +337,7 @@ public class QtumService {
         List<TxInfo> txInfos = txInfosPage.getContent() == null ? new ArrayList<>() : txInfosPage.getContent();
 
         resultMap.put("txInfos", txInfos);
-        resultMap.put("QBE", getAddressUnSpent(address));
+        resultMap.put("QBE", addressInfoDao.findSumBalanceChange(address));
         resultMap.put("tokens", getTokenBalance(address));
         resultMap.put("totalNumber", txInfosPage.getTotalElements());
 
