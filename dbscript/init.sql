@@ -14,7 +14,7 @@ CREATE TABLE `d_qbao_chain_schema`.`t_block_info` (
   `block_preblockhash` varchar(120) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   KEY `index_block_hash` (`block_hash`),
-  KEY `index_block_height` (`block_height`),
+  KEY `index_block_height` (`block_height`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `d_qbao_chain_schema`.`t_tx_info` (
