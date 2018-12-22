@@ -4,6 +4,7 @@ import com.aethercoder.dao.AddressInfoDao;
 import com.aethercoder.dao.BlockInfoDao;
 import com.aethercoder.dao.TokenInfoDao;
 import com.aethercoder.dao.TxInfoDao;
+import com.aethercoder.entity.AddressInfo;
 import com.aethercoder.entity.BlockInfo;
 import com.aethercoder.entity.TokenInfo;
 import com.aethercoder.entity.TxInfo;
@@ -29,6 +30,7 @@ import javax.persistence.criteria.Root;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Created by hepengfei on 23/01/2018.
@@ -323,25 +325,29 @@ public class QtumService {
         }
         else if(paramLength == 40 || paramLength == 34){
             //参数长度为40为合约地址---参数长度为35为账户地址
-            return BeanUtils.objectToJson(getAddressInfos(param, 10, 0));
+            return BeanUtils.objectToJson(getAddressInfos(param));
         }
 
         return "";
     }
 
-    public Map getAddressInfos(String address, Integer size, Integer page){
+    public Map getAddressInfos(String address){
         Map resultMap = new HashMap();
 
-        Pageable pageable = new PageRequest(page, size, new Sort(Sort.Direction.DESC, "block_height"));
-        Page<TxInfo> txInfosPage = txInfoDao.getTxInfos(address, pageable);
-        List<TxInfo> txInfos = txInfosPage.getContent() == null ? new ArrayList<>() : txInfosPage.getContent();
-
-        resultMap.put("txInfos", txInfos);
         resultMap.put("QBE", addressInfoDao.findSumBalanceChange(address));
         resultMap.put("tokens", getTokenBalance(address));
-        resultMap.put("totalNumber", txInfosPage.getTotalElements());
+        resultMap.put("totalNumber", addressInfoDao.getAllTxsByAddress(address));
 
         return resultMap;
+    }
+
+    public List<TxInfo> getTxListByAddress(String address, Integer size, Integer page) {
+        Pageable pageable = new PageRequest(page, size, new Sort(Sort.Direction.DESC, "block_height"));
+        Page<AddressInfo> addressInfosPage = addressInfoDao.getTxInfos(address, pageable);
+        List<AddressInfo> txInfos = addressInfosPage.getContent() == null ? new ArrayList<>() : addressInfosPage.getContent();
+        List<String> txIdList = txInfos.stream().map(AddressInfo::getTx_hash).collect(Collectors.toList());
+        List<TxInfo> txInfoList = txInfoDao.getByTxIdIn(txIdList);
+        return txInfoList;
     }
 
     public Map getBlockAndTx(Integer height){

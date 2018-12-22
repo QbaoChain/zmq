@@ -7,11 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,10 +38,16 @@ public class QtumController {
     }
 
     @RequestMapping( value = "/addressInfo", method = RequestMethod.GET)
-    public Map getAddressInfo(@RequestParam(required = false) String address, @RequestParam(value = "size", required = false) Integer size, @RequestParam(value = "page", required = false) Integer page) throws Exception {
+    public Map getAddressInfo(@RequestParam String address) throws Exception {
         logger.info("/addressInfo");
 
-        return qtumService.getAddressInfos(address, size, page);
+        return qtumService.getAddressInfos(address);
+    }
+
+    @GetMapping( value = "/addressTxList")
+    public List getAddressList(@RequestParam String address, @RequestParam(value = "size", required = false) Integer size, @RequestParam(value = "page", required = false) Integer page) throws Exception {
+        logger.info("/addressTxList");
+        return qtumService.getTxListByAddress(address, size, page);
     }
 
     @RequestMapping( value = "/transactionInfo", method = RequestMethod.GET)

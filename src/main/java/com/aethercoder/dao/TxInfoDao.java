@@ -21,6 +21,8 @@ public interface TxInfoDao extends JpaRepository<TxInfo, Long>{
 
     List<TxInfo> getByTxId(String txHash);
 
+    List<TxInfo> getByTxIdIn(List<String> txHashList);
+
     @Query(value = "select * from t_tx_info a order by ?#{#pageable}",countQuery = "SELECT count(*) from t_tx_info",nativeQuery = true)
     Page<TxInfo> getByPage(Pageable pageable);
 
