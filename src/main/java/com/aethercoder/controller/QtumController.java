@@ -51,10 +51,12 @@ public class QtumController {
     }
 
     @RequestMapping( value = "/transactionInfo", method = RequestMethod.GET)
-    public Page<TxInfo> getTransactionInfo(@RequestParam(value = "txHash", required = false) String txHash, @RequestParam(value = "blockHeight", required = false) Integer blockHeight, @RequestParam(value = "size", required = false) Integer size, @RequestParam(value = "page", required = false) Integer page) throws Exception {
+    public Page<TxInfo> getTransactionInfo(@RequestParam(value = "txHash", required = false) String txHash, @RequestParam(value = "blockHeight", required = false) Integer blockHeight,
+                                           @RequestParam(required = false) String blockHash,
+                                           @RequestParam(value = "size", required = false) Integer size, @RequestParam(value = "page", required = false) Integer page) throws Exception {
         logger.info("/transactionInfo");
 
-        return qtumService.getTransactionInfo(page, size, txHash, blockHeight);
+        return qtumService.getTransactionInfo(page, size, txHash, blockHeight, blockHash);
     }
 
     @RequestMapping( value = "/tokenBalance", method = RequestMethod.GET)

@@ -196,7 +196,7 @@ public class QtumService {
         return blockInfo;
     }
 
-    public Page<TxInfo> getTransactionInfo(Integer page, Integer size, String txHash, Integer blockHeight) throws Exception {
+    public Page<TxInfo> getTransactionInfo(Integer page, Integer size, String txHash, Integer blockHeight, String blockHash) throws Exception {
 
         Pageable pageable = new PageRequest(page, size, Sort.Direction.DESC, "id");
         Page<TxInfo> txInfos = txInfoDao.findAll(new Specification<TxInfo>() {
@@ -204,10 +204,13 @@ public class QtumService {
             public Predicate toPredicate(Root<TxInfo> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
                 List<Predicate> list = new ArrayList<Predicate>();
                 if (null != txHash && !"".equals(txHash)) {
-                    list.add(criteriaBuilder.equal(root.get("txHash").as(String.class), txHash));
+                    list.add(criteriaBuilder.equal(root.get("txId").as(String.class), txHash));
                 }
                 if (null != blockHeight && !"".equals(blockHeight)) {
-                    list.add(criteriaBuilder.like(root.get("blockHeight").as(String.class), blockHeight + "%"));
+                    list.add(criteriaBuilder.equal(root.get("blockHeight").as(String.class), blockHeight));
+                }
+                if (null != blockHash && !"".equals(blockHash)) {
+                    list.add(criteriaBuilder.equal(root.get("blockHash").as(String.class), blockHash));
                 }
                 Predicate[] p = new Predicate[list.size()];
                 return criteriaBuilder.and(list.toArray(p));
