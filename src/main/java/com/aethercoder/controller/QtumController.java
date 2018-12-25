@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +36,14 @@ public class QtumController {
         logger.info("/blockInfo");
 
         return qtumService.getBlockInfo(blockHashOrBlockCount);
+    }
+
+    @GetMapping( value = "maxBlockHeight")
+    public Map getMaxBlockHeight() {
+        long maxHeight = qtumService.getMaxBlockHeight();
+        Map<String, Long> result = new HashMap<>();
+        result.put("maxHeight", maxHeight);
+        return result;
     }
 
     @RequestMapping( value = "/addressInfo", method = RequestMethod.GET)

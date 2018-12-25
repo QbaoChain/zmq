@@ -21,8 +21,8 @@ spring:
 qtum:
   qtumd: /root/perfect/src/qtumd
   zmq: tcp://47.100.27.65:4000
-  url: http://172.16.3.60:13889
-  event_url: http://172.16.3.60:13889
+  url: http://47.100.27.65:13889
+  event_url: http://47.100.27.65:13889
   username: admin
   password: admin
 

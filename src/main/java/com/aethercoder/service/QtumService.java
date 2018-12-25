@@ -177,6 +177,10 @@ public class QtumService {
         return resultMap;
     }
 
+    public Long getMaxBlockHeight() {
+        return blockInfoDao.findMaxBlockHeight();
+    }
+
     public Page<BlockInfo> getBlockInfosByPage(Integer size, Integer page){
         Pageable pageable = new PageRequest(page, size, new Sort(Sort.Direction.DESC, "block_height"));
         Page<BlockInfo> blockInfosPage = blockInfoDao.getAll(pageable);
