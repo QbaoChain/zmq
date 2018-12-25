@@ -353,7 +353,7 @@ public class QtumService {
         Page<AddressInfo> addressInfosPage = addressInfoDao.getTxInfos(address, pageable);
         List<AddressInfo> txInfos = addressInfosPage.getContent() == null ? new ArrayList<>() : addressInfosPage.getContent();
         List<String> txIdList = txInfos.stream().map(AddressInfo::getTx_hash).collect(Collectors.toList());
-        List<TxInfo> txInfoList = txInfoDao.getByTxIdIn(txIdList);
+        List<TxInfo> txInfoList = txInfoDao.getByTxIdInOrderByBlockHeightDesc(txIdList);
         return txInfoList;
     }
 
