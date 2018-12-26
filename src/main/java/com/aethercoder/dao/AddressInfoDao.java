@@ -32,4 +32,7 @@ public interface AddressInfoDao extends JpaRepository<AddressInfo, Long>{
 
     @Query(value = "select * from t_address_info where address = :address order by ?#{#pageable}" ,nativeQuery = true)
     Page<AddressInfo> getTxInfos(@Param("address") String address, Pageable pageable);
+
+    @Query(value = "select * from t_address_info where address = :address limit 1", nativeQuery = true)
+    AddressInfo getOneAddressInfoByAddress(@Param("address") String address);
 }

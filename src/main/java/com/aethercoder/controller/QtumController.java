@@ -1,5 +1,6 @@
 package com.aethercoder.controller;
 
+import com.aethercoder.dto.SearchResult;
 import com.aethercoder.entity.BlockInfo;
 import com.aethercoder.entity.TxInfo;
 import com.aethercoder.service.QtumService;
@@ -76,7 +77,7 @@ public class QtumController {
     }
 
     @RequestMapping( value = "/queryByParam", method = RequestMethod.GET)
-    public String queryByParam(@RequestParam String param) throws Exception {
+    public SearchResult queryByParam(@RequestParam String param) throws Exception {
         logger.info("/queryByParam");
 
         return qtumService.queryByParam(param);

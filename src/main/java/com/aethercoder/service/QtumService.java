@@ -4,6 +4,7 @@ import com.aethercoder.dao.AddressInfoDao;
 import com.aethercoder.dao.BlockInfoDao;
 import com.aethercoder.dao.TokenInfoDao;
 import com.aethercoder.dao.TxInfoDao;
+import com.aethercoder.dto.SearchResult;
 import com.aethercoder.entity.AddressInfo;
 import com.aethercoder.entity.BlockInfo;
 import com.aethercoder.entity.TokenInfo;
@@ -313,29 +314,40 @@ public class QtumService {
         return result;
     }
 
-    public String queryByParam(String param){
+    public SearchResult queryByParam(String param){
+        SearchResult searchResult = new SearchResult();
         if (isInteger(param)){
-            return BeanUtils.objectToJson(blockInfoDao.getByBlockHeight(Integer.valueOf(param)));
+            BlockInfo blockInfo = blockInfoDao.getByBlockHeight(Integer.valueOf(param));
+            if (blockInfo != null) {
+                searchResult.setType("block");
+            }
+            return searchResult;
         }
 
         int paramLength = param.length();
         if(paramLength == 64){
             //参数长度为64为区块hash或者交易Hash
             BlockInfo blockInfo = blockInfoDao.getByBlockHash(param);
-            if(blockInfo == null){
-                return BeanUtils.objectToJson(txInfoDao.getByTxId(param));
+            if (blockInfo != null) {
+                searchResult.setType("block");
+                return searchResult;
             }
-            else {
-                return BeanUtils.objectToJson(blockInfo);
+            TxInfo txInfo = txInfoDao.getByTxId(param);
+            if (txInfo != null) {
+                searchResult.setType("transaction");
+                return searchResult;
             }
-
         }
         else if(paramLength == 40 || paramLength == 34){
             //参数长度为40为合约地址---参数长度为35为账户地址
-            return BeanUtils.objectToJson(getAddressInfos(param));
+            AddressInfo addressInfo = addressInfoDao.getOneAddressInfoByAddress(param);
+            if (addressInfo != null) {
+                searchResult.setType("address");
+                return searchResult;
+            }
         }
 
-        return "";
+        return searchResult;
     }
 
     public Map getAddressInfos(String address){

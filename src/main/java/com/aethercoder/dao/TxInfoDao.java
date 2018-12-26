@@ -19,7 +19,7 @@ public interface TxInfoDao extends JpaRepository<TxInfo, Long>{
     @Query(value = "select max(block_height) from t_tx_info", nativeQuery = true)
     Long findMaxBlockHeight();
 
-    List<TxInfo> getByTxId(String txHash);
+    TxInfo getByTxId(String txHash);
 
     List<TxInfo> getByTxIdInOrderByBlockHeightDesc(List<String> txHashList);
 
