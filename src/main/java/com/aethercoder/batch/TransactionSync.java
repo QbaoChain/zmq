@@ -16,8 +16,7 @@ public class TransactionSync {
 
     private static Logger logger = LoggerFactory.getLogger(ScheduledTask.class);
 
-    @Autowired
-    private QtumService qtumService;
+
 
 //    @Scheduled(cron = "${schedule.syncTxCron}")
     public void syncUnconfirmedTx() throws Exception{
