@@ -64,7 +64,7 @@ public class QueueSubService implements Runnable {
 
                     //同步丢失的区块,启动初始或者每同步处理1000个区块，启动单个线程去检查是否存在缺失的区块
                 blocks++;
-                if (blocks % 1000 == 0 && isThreadOver){
+                if (blocks % 100 == 0 && isThreadOver){
                     executor.execute(new SynBlockService(qtumService, blockingDeque));
                 }
 
