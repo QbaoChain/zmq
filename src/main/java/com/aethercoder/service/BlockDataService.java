@@ -171,7 +171,7 @@ public class BlockDataService implements Runnable {
                     if (asmBody[3].startsWith("a9059cbb")){
                         List<String> contractAddressList = new ArrayList<>();
                         contractAddressList.add(address);
-                        List eventLogList = qtumService.getEventLog((Long) blockDetail.get("height"), (Long)blockDetail.get("height"), contractAddressList);
+                        List eventLogList = qtumService.getEventLog(((Integer)blockDetail.get("height")).longValue(), ((Integer)blockDetail.get("height")).longValue(), contractAddressList);
                         if (eventLogList.size() > 0)
                         {
                             Map<String, TokenInfo> tokenInfoMap = qtumService.getTokenIndoMap();
